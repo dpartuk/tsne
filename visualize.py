@@ -1,9 +1,10 @@
 import time
-
+import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder
+from matplotlib.colors import ListedColormap
 from sklearn.manifold import TSNE
-from tsne import tsne_local
+from tsne import tsne_local, run_tsne
 
 import args
 
@@ -85,7 +86,7 @@ def encode_colors(y):
     # Now you can pass y_encoded to plt.scatter
     return y_encoded
 
-def visualize_tsne(X_embedded, labels):
+def visualize_tsne(X_embedded, labels, perplexity, exaggeration):
     """
     Visualize t-SNE results with colors representing different classes.
 
@@ -109,15 +110,64 @@ def visualize_tsne(X_embedded, labels):
         # labels = labels.astype(int)
         label_encoder = LabelEncoder()
         labels = label_encoder.fit_transform(labels)
+        label_names = label_encoder.classes_
+    else:
+        label_names = np.unique(labels)
+
+    # Create a custom colormap with the number of unique labels
+    cmap = ListedColormap(plt.cm.tab10.colors[:len(label_names)])
 
     # Create a scatter plot with points colored by digit class
     scatter = plt.scatter(
-        X_embedded[:, 0], X_embedded[:, 1], c=labels, cmap="tab10", alpha=0.7, s=5
+        X_embedded[:, 0], X_embedded[:, 1], c=labels, cmap=cmap, alpha=0.7, s=5
     )
 
     # Add a color bar to show the mapping of colors to digits
-    plt.colorbar(scatter, ticks=range(10), label="Digit")
-    plt.title("t-SNE visualization of MNIST digits")
+    cbar = plt.colorbar(scatter, ticks=range(len(label_names)))
+    cbar.set_label("Categories")
+    cbar.set_ticks(np.arange(len(label_names)))
+    cbar.set_ticklabels(label_names)
+    # Create a custom legend
+    handles, _ = scatter.legend_elements(prop="colors")
+    plt.legend(handles, label_names, title="Categories")
+
+    # label = "t-SNE visualization, Perplexity: ", perplexity, "Exaggeration: ", exaggeration
+    # plt.title(label)
+    plt.title(f"t-SNE visualization, Perplexity: {perplexity}, Exaggeration: {exaggeration}")
     plt.show()
 
 def compare_hyperparameters(args, X, y):
+    if args.compare_perplexity:
+        perplexity_values = [float(p) for p in args.perplexity_values.split(",")]
+        exaggeration_values = [float(p) for p in args.exaggeration_values.split(",")]
+
+        for perplexity in perplexity_values:
+            for exaggeration in exaggeration_values:
+                X_tsne = run_tsne(X, args,
+                                  perplexity=perplexity,
+                                  learning_rate=args.learning_rate,
+                                  exaggeration=exaggeration,
+                                  n_iterations=args.n_iterations,
+                                  random_state=42)
+
+                visualize_tsne(X_tsne, y, perplexity, exaggeration)
+
+
+        # plot_tsne_perplexity_comparison(
+        #     args, X_scaled, y, perplexities=perplexity_values, save_path=args.output
+        # )
+
+        # Conclusions about perplexity effects:
+        # print("\nConclusions from perplexity comparison:")
+        # print(
+        #     "- Low perplexity (5): Creates tighter clusters but may miss global structure"
+        # )
+        # print(
+        #     "- Medium perplexity (30-50): Provides good balance between local and global patterns"
+        # )
+        # print(
+        #     "- High perplexity (100): Emphasizes global relationships but may blur local details"
+        # )
+        # print("- Higher perplexity values generally result in more dispersed clusters")
+
+

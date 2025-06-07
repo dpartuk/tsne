@@ -4,31 +4,40 @@ import tools
 import time
 from sklearn.manifold import TSNE
 
-def run_tsne(X, args):
+def run_tsne(X, args,
+             perplexity=30,
+             learning_rate=200,
+             exaggeration=12,
+             n_iterations=1000,
+             random_state=42,):
     print("Applying t-SNE transformation...")
     start_time = time.time()
 
     if args.use_local:
         print("Using local t-SNE implementation...")
-        X_tsne = tsne_local(X, args)
+        X_tsne = tsne_local(X,
+                            perplexity=perplexity,
+                            learning_rate=learning_rate,
+                            n_iter=n_iterations,
+                            random_state=random_state)
     elif args.use_custom:
         print("Using custom t-SNE implementation...")
         local_tsne = LocalTSNE(
-            perplexity=args.perplexity,
-            learning_rate=args.learning_rate,
-            early_exaggeration=args.exaggeration,
-            n_iter=args.n_iterations,
-            random_state=42,
+            perplexity=perplexity,
+            learning_rate=learning_rate,
+            early_exaggeration=exaggeration,
+            n_iter=n_iterations,
+            random_state=random_state,
         )
         X_tsne = local_tsne.fit_transform(X)
     else:
         tsne = TSNE(
             n_components=2,
-            perplexity=args.perplexity,
-            early_exaggeration=args.exaggeration,
-            learning_rate=args.learning_rate,
-            random_state=42,
-            n_iter=args.n_iterations
+            perplexity=perplexity,
+            early_exaggeration=exaggeration,
+            learning_rate=learning_rate,
+            random_state=random_state,
+            n_iter=n_iterations
         )
         X_tsne = tsne.fit_transform(X)
 
@@ -38,7 +47,11 @@ def run_tsne(X, args):
     return X_tsne
 
 
-def tsne_local(X, args):
+def tsne_local(X,
+               perplexity=30,
+               learning_rate=200,
+               n_iter=1000,
+               random_state=42, ):
     """
     Simplified t-SNE implementation for educational purposes.
 
@@ -58,10 +71,10 @@ def tsne_local(X, args):
     - Y: Embedded coordinates (n_samples, n_components)
     """
     n_components = 2
-    random_state = 42
-    perplexity = args.perplexity
-    n_iter = args.n_iterations
-    learning_rate = args.learning_rate
+    # random_state = 42
+    # perplexity = args.perplexity
+    # n_iter = args.n_iterations
+    # learning_rate = args.learning_rate
 
     n_samples = X.shape[0]
 
@@ -129,7 +142,7 @@ class LocalTSNE:
         learning_rate=200.0,
         early_exaggeration=12.0,
         n_iter=1000,
-        random_state=None,
+        random_state=42,
     ):
         """
         Initialize the t-SNE parameters.

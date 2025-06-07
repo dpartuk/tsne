@@ -44,11 +44,19 @@ def main(args):
     print("Loading dataset...", args.dataset)
     X, y = load_dataset(args)
 
-    X_tsne = run_tsne(X, args)
+    X_tsne = run_tsne(X, args,
+                      perplexity=args.perplexity,
+                      learning_rate=args.learning_rate,
+                      exaggeration=args.exaggeration,
+                      n_iterations=args.n_iterations,
+                      random_state=42)
 
-    visualize_tsne(X_tsne, y)
+    visualize_tsne(X_tsne, y,
+                   perplexity=args.perplexity,
+                   exaggeration=args.exaggeration)
 
-    compare_hyperparameters(args, X, y)
+    if args.compare_perplexity:
+        compare_hyperparameters(args, X, y)
 
 
     # X, y = load_mnist(n_samples=args.n_samples)  # Using fewer samples for faster execution
