@@ -5,7 +5,7 @@ from sklearn.preprocessing import LabelEncoder
 from matplotlib.colors import ListedColormap
 from sklearn.manifold import TSNE
 from tsne import tsne_local, run_tsne
-
+from matplotlib.backends.backend_pdf import PdfPages
 import args
 
 
@@ -137,6 +137,7 @@ def visualize_tsne(X_embedded, labels, perplexity, exaggeration):
     plt.show()
 
 def compare_hyperparameters(args, X, y):
+
     if args.compare_perplexity:
         perplexity_values = [float(p) for p in args.perplexity_values.split(",")]
         exaggeration_values = [float(p) for p in args.exaggeration_values.split(",")]
