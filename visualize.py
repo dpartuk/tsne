@@ -119,3 +119,5 @@ def visualize_tsne(X_embedded, labels):
     plt.colorbar(scatter, ticks=range(10), label="Digit")
     plt.title("t-SNE visualization of MNIST digits")
     plt.show()
+
+def compare_hyperparameters(args, X, y):

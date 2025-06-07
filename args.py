@@ -47,6 +47,9 @@ def read_args():
         "--use-local", action="store_true", help="Use local t-SNE implementation"
     )
     parser.add_argument(
+        "--use-custom", action="store_true", help="Use local custom t-SNE implementation"
+    )
+    parser.add_argument(
         "--learning-rate", type=float, default=200.0, help="Learning rate for local t-SNE"
     )
 

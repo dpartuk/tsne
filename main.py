@@ -7,7 +7,7 @@
 import args
 from dataset import load_dataset
 from tsne import run_tsne
-from visualize import visualize_tsne
+from visualize import visualize_tsne, compare_hyperparameters
 # from sklearn.datasets import fetch_openml
 # from sklearn.manifold import TSNE
 # import matplotlib.pyplot as plt
@@ -47,6 +47,8 @@ def main(args):
     X_tsne = run_tsne(X, args)
 
     visualize_tsne(X_tsne, y)
+
+    compare_hyperparameters(args, X, y)
 
 
     # X, y = load_mnist(n_samples=args.n_samples)  # Using fewer samples for faster execution
