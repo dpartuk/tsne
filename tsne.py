@@ -1,8 +1,32 @@
 from scipy.spatial.distance import pdist, squareform
 import numpy as np
 import tools
+import time
+from sklearn.manifold import TSNE
 
-def tsne_local(X, n_components=2, perplexity=30.0, random_state=42, n_iter=1000, learning_rate=200.0):
+def run_tsne(X, args):
+    print("Applying t-SNE transformation...")
+    start_time = time.time()
+
+    if args.use_local:
+        print("Using local t-SNE implementation...")
+        X_tsne = tsne_local(X, args)
+    else:
+        tsne = TSNE(
+            n_components=2,
+            perplexity=args.perplexity,
+            early_exaggeration=args.exaggeration,
+            random_state=42, n_iter=args.n_iterations
+        )
+        X_tsne = tsne.fit_transform(X)
+
+    end_time = time.time()
+    print(f"t-SNE completed in {end_time - start_time:.2f} seconds")
+
+    return X_tsne
+
+
+def tsne_local(X, args):
     """
     Simplified t-SNE implementation for educational purposes.
 
@@ -21,6 +45,12 @@ def tsne_local(X, n_components=2, perplexity=30.0, random_state=42, n_iter=1000,
     Returns:
     - Y: Embedded coordinates (n_samples, n_components)
     """
+    n_components = 2
+    random_state = 42
+    perplexity = args.perplexity
+    n_iter = args.n_iterations
+    learning_rate = args.learning_rate
+
     n_samples = X.shape[0]
 
     # Step 1: Compute pairwise distances
