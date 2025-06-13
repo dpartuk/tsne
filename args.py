@@ -45,8 +45,8 @@ def read_args():
         "--dataset",
         type=str,
         default="mnist_784",
-        choices=['mnist_784', 'CIFAR_10', 'iris', 'Fashion-MNIST'],
-        help="Which dataset to use between mnist_784, CIFAR_10, Fashion-MNIST and iris(default: mnist_784)",
+        choices=['CT', 'mnist_784', 'CIFAR_10', 'iris', 'Fashion-MNIST', 'SVHN', 'GSE45827'],
+        help="Which dataset to use between CT, mnist_784, CIFAR_10, Fashion-MNIST, GSE45827, SVHN and iris(default: mnist_784)",
     )
     parser.add_argument("--output", type=str, help="Path to save visualization")
     parser.add_argument(
