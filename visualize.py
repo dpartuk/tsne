@@ -86,7 +86,7 @@ def encode_colors(y):
     # Now you can pass y_encoded to plt.scatter
     return y_encoded
 
-def visualize_tsne(X_embedded, labels, perplexity, exaggeration):
+def visualize_tsne(args, X_embedded, labels, perplexity, exaggeration):
     """
     Visualize t-SNE results with colors representing different classes.
 
@@ -100,6 +100,9 @@ def visualize_tsne(X_embedded, labels, perplexity, exaggeration):
         X_embedded: Low-dimensional embedding from t-SNE
         labels: Class labels for each point
     """
+    if args.dataset == "FAKE":
+        labels = X_embedded[:, 1]
+
     print("Creating visualization...")
 
     # Create a scatter plot
@@ -136,9 +139,41 @@ def visualize_tsne(X_embedded, labels, perplexity, exaggeration):
     plt.title(f"t-SNE visualization, Perplexity: {perplexity}, Exaggeration: {exaggeration}")
     plt.show()
 
+def visualize_subplot(X_embedded, labels, perplexity, exaggeration, ax):
+
+    # Convert labels to integers if they're strings
+    if isinstance(labels[0], str):
+        # labels = labels.astype(int)
+        label_encoder = LabelEncoder()
+        labels = label_encoder.fit_transform(labels)
+        label_names = label_encoder.classes_
+    else:
+        label_names = np.unique(labels)
+
+    # Create a custom colormap with the number of unique labels
+    cmap = ListedColormap(plt.cm.tab10.colors[:len(label_names)])
+
+    # Create a scatter plot with points colored by digit class
+    scatter = ax.scatter(
+        X_embedded[:, 0], X_embedded[:, 1], c=labels, cmap=cmap, alpha=0.7, s=5
+    )
+
+    handles, _ = scatter.legend_elements(prop="colors")
+
+    ax.legend(handles, label_names, title="Categories", fontsize='xx-small', title_fontsize='xx-small')
+    ax.set_title(f"Perplexity: {perplexity}, Exaggeration: {exaggeration}", fontsize='small')
+
+
 def compare_hyperparameters(args, X, y):
 
     if args.compare_perplexity:
+
+        # Create a 3x4 grid of subplots
+        fig, axes = plt.subplots(nrows=4, ncols=3, figsize=(15, 10))
+        # Flatten the axes array for easy iteration
+        axes = axes.flatten()
+        i = 0
+
         perplexity_values = [float(p) for p in args.perplexity_values.split(",")]
         exaggeration_values = [float(p) for p in args.exaggeration_values.split(",")]
 
@@ -151,24 +186,16 @@ def compare_hyperparameters(args, X, y):
                                   n_iterations=args.n_iterations,
                                   random_state=42)
 
-                visualize_tsne(X_tsne, y, perplexity, exaggeration)
+                ax = axes[i]
+                i += 1
 
+                # visualize as subplot
+                visualize_subplot(X_tsne, y, perplexity, exaggeration, ax)
 
-        # plot_tsne_perplexity_comparison(
-        #     args, X_scaled, y, perplexities=perplexity_values, save_path=args.output
-        # )
+                # visualize plot by plot
+                # visualize_tsne(X_tsne, y, perplexity, exaggeration)
 
-        # Conclusions about perplexity effects:
-        # print("\nConclusions from perplexity comparison:")
-        # print(
-        #     "- Low perplexity (5): Creates tighter clusters but may miss global structure"
-        # )
-        # print(
-        #     "- Medium perplexity (30-50): Provides good balance between local and global patterns"
-        # )
-        # print(
-        #     "- High perplexity (100): Emphasizes global relationships but may blur local details"
-        # )
-        # print("- Higher perplexity values generally result in more dispersed clusters")
+        plt.show()
+
 
 

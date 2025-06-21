@@ -9,11 +9,16 @@ from torch.utils.data import DataLoader
 from ct_image_processing import ImageProcessing
 from ct_visualizer import CTVisualizer
 
+from fake_embedding import FakeEmbedding
+
 
 def load_dataset(args):
 
     if args.dataset == 'CT':
         X, y = load_ct_dataset()
+    elif args.dataset == 'FAKE':
+        fake = FakeEmbedding()
+        X, y = fake.load_dataset()
     else:
 
         X, y = fetch_openml(args.dataset, version=1,return_X_y=True, as_frame=False)

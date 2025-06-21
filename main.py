@@ -51,7 +51,7 @@ def main(args):
                       n_iterations=args.n_iterations,
                       random_state=42)
 
-    visualize_tsne(X_tsne, y,
+    visualize_tsne(args, X_tsne, y,
                    perplexity=args.perplexity,
                    exaggeration=args.exaggeration)
 
