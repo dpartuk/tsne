@@ -12,12 +12,12 @@ from ct_visualizer import CTVisualizer
 from fake_embedding import FakeEmbedding
 
 
-def load_dataset(args):
+def load_dataset(args, embedding_size):
 
     if args.dataset == 'CT':
         X, y = load_ct_dataset()
     elif args.dataset == 'FAKE':
-        fake = FakeEmbedding()
+        fake = FakeEmbedding(embedding_size)
         X, y = fake.load_dataset()
     else:
 

@@ -100,8 +100,8 @@ def visualize_tsne(args, X_embedded, labels, perplexity, exaggeration):
         X_embedded: Low-dimensional embedding from t-SNE
         labels: Class labels for each point
     """
-    if args.dataset == "FAKE":
-        labels = X_embedded[:, 1]
+    # if args.dataset == "FAKE":
+    #     labels = X_embedded[:, 1]
 
     print("Creating visualization...")
 
@@ -139,7 +139,10 @@ def visualize_tsne(args, X_embedded, labels, perplexity, exaggeration):
     plt.title(f"t-SNE visualization, Perplexity: {perplexity}, Exaggeration: {exaggeration}")
     plt.show()
 
-def visualize_subplot(X_embedded, labels, perplexity, exaggeration, ax):
+def visualize_subplot(args, X_embedded, labels, perplexity, exaggeration, ax):
+
+    if args.dataset == "FAKE":
+        labels = X_embedded[:, 1]
 
     # Convert labels to integers if they're strings
     if isinstance(labels[0], str):
@@ -190,12 +193,13 @@ def compare_hyperparameters(args, X, y):
                 i += 1
 
                 # visualize as subplot
-                visualize_subplot(X_tsne, y, perplexity, exaggeration, ax)
+                visualize_subplot(args, X_tsne, y, perplexity, exaggeration, ax)
 
                 # visualize plot by plot
                 # visualize_tsne(X_tsne, y, perplexity, exaggeration)
 
         plt.show()
+
 
 
 
