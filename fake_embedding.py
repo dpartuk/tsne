@@ -8,7 +8,8 @@ import numpy as np
 import os
 
 import torch
-from transformers import BertTokenizer, BertModel, AlbertTokenizer, AlbertModel, XLNetTokenizer, XLNetModel
+from transformers import BertTokenizer, BertModel, AlbertTokenizer, AlbertModel, XLNetTokenizer, XLNetModel, \
+    DistilBertModel, DistilBertTokenizer
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -29,8 +30,9 @@ class FakeEmbedding:
         # Load the LIAR dataset
         # TBD Change to local env. Download liar dataset
         self.root_dir = f"{self.home_dir}/local/fake_dataset/liar"
-        # self.file_name = "train2.tsv"
-        self.file_name = "test2.tsv"
+        self.file_name = "train2.tsv"
+        # self.file_name = "test2.tsv"
+        # self.file_name = "dev.tsv"
 
         # Load pre-trained BERT model and tokenizer
         # self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
@@ -42,7 +44,10 @@ class FakeEmbedding:
         elif (embedding_size == 'xlnet-large-cased'):
             self.tokenizer = XLNetTokenizer.from_pretrained('xlnet-large-cased')
             self.model = XLNetModel.from_pretrained('xlnet-large-cased')
-        else:
+        elif (embedding_size == 'distilbert-base-uncased'):
+            self.tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
+            self.model = DistilBertModel.from_pretrained('distilbert-base-uncased')
+        elif (embedding_size == 'bert-base-uncased'):
             self.tokenizer = BertTokenizer.from_pretrained(embedding_size)
             self.model = BertModel.from_pretrained(embedding_size)
 

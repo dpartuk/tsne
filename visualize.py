@@ -100,8 +100,8 @@ def visualize_tsne(args, X_embedded, labels, perplexity, exaggeration):
         X_embedded: Low-dimensional embedding from t-SNE
         labels: Class labels for each point
     """
-    # if args.dataset == "FAKE":
-    #     labels = X_embedded[:, 1]
+    if args.dataset == "FAKE":
+        labels = X_embedded[:, 1]
 
     print("Creating visualization...")
 
@@ -141,8 +141,8 @@ def visualize_tsne(args, X_embedded, labels, perplexity, exaggeration):
 
 def visualize_subplot(args, X_embedded, labels, perplexity, exaggeration, ax):
 
-    if args.dataset == "FAKE":
-        labels = X_embedded[:, 1]
+    # if args.dataset == "FAKE":
+    #     labels = X_embedded[:, 1]
 
     # Convert labels to integers if they're strings
     if isinstance(labels[0], str):
@@ -161,6 +161,7 @@ def visualize_subplot(args, X_embedded, labels, perplexity, exaggeration, ax):
         X_embedded[:, 0], X_embedded[:, 1], c=labels, cmap=cmap, alpha=0.7, s=5
     )
 
+    # Create a custom legend
     handles, _ = scatter.legend_elements(prop="colors")
 
     ax.legend(handles, label_names, title="Categories", fontsize='xx-small', title_fontsize='xx-small')
@@ -195,11 +196,38 @@ def compare_hyperparameters(args, X, y):
                 # visualize as subplot
                 visualize_subplot(args, X_tsne, y, perplexity, exaggeration, ax)
 
-                # visualize plot by plot
-                # visualize_tsne(X_tsne, y, perplexity, exaggeration)
-
         plt.show()
 
+def visualize_tsne2(args, X_embedded, labels, perplexity, exaggeration):
+    plt.figure(figsize=(10, 8))
 
+    # Convert labels to integers if they're strings
+    if isinstance(labels[0], str):
+        label_encoder = LabelEncoder()
+        labels = label_encoder.fit_transform(labels)
+        label_names = label_encoder.classes_
+    else:
+        label_names = np.unique(labels)
 
+    cmap = ListedColormap(plt.cm.tab10.colors[:len(label_names)])
+
+    scatter = plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=labels, cmap=cmap, alpha=0.7, s=5)
+
+    # Create a custom legend
+    handles, _ = scatter.legend_elements(prop="colors")
+    plt.legend(handles, label_names, title="Categories")
+
+    # label = "t-SNE visualization, Perplexity: ", perplexity, "Exaggeration: ", exaggeration
+    # plt.title(label)
+    plt.title(f"t-SNE visualization, Perplexity: {perplexity}, Exaggeration: {exaggeration}")
+    plt.show()
+
+    # # Match cluster assignments with labels
+    # cluster_labels = np.argmax(X_embedded, axis=1)
+    # label_dict = {i: label for i, label in enumerate(np.unique(labels))}
+    # cluster_labels_mapped = [label_dict[i] for i in cluster_labels]
+    # # Visualize the clusters with labels
+    # plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=cluster_labels_mapped)
+    # plt.legend()
+    # plt.show()
 

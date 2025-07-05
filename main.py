@@ -7,7 +7,7 @@
 import args
 from dataset import load_dataset
 from tsne import run_tsne
-from visualize import visualize_tsne, compare_hyperparameters
+from visualize import visualize_tsne, compare_hyperparameters, visualize_tsne2
 # from sklearn.datasets import fetch_openml
 # from sklearn.manifold import TSNE
 # import matplotlib.pyplot as plt
@@ -43,7 +43,7 @@ def main(args):
     # ------------------------------------------------------------------------------
 
     print("Loading dataset...", args.dataset)
-    X, y = load_dataset(args, 'bert-base-uncased')
+    X, y = load_dataset(args, 'distilbert-base-uncased')
 
     X_tsne = run_tsne(X, args,
                       perplexity=args.perplexity,
@@ -56,11 +56,15 @@ def main(args):
                    perplexity=args.perplexity,
                    exaggeration=args.exaggeration)
 
+    visualize_tsne2(args, X_tsne, y,
+                   perplexity=args.perplexity,
+                   exaggeration=args.exaggeration)
+
     if args.compare_perplexity:
         if args.dataset == 'FAKE':
             # 128, 768, 2048, 4096
             embedding_size = ['distilbert-base-uncased', 'bert-base-uncased', 'xlnet-large-cased', 'albert-xxlarge-v2']
-
+            # embedding_size = ['bert-base-uncased']
             for value in embedding_size:
                 X, y = load_dataset(args, value)
                 compare_hyperparameters(args, X, y)
