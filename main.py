@@ -6,14 +6,8 @@
 # import tools
 import args
 from dataset import load_dataset
-from tsne import run_tsne
+from tsne import run_tsne, compare_tsne_implementations
 from visualize import visualize_tsne, compare_hyperparameters, visualize_tsne2
-# from sklearn.datasets import fetch_openml
-# from sklearn.manifold import TSNE
-# import matplotlib.pyplot as plt
-# import numpy as np
-# from sklearn.preprocessing import MinMaxScaler
-# import time
 
 
 import warnings
@@ -45,20 +39,41 @@ def main(args):
     print("Loading dataset...", args.dataset)
     X, y = load_dataset(args, 'distilbert-base-uncased')
 
-    X_tsne = run_tsne(X, args,
-                      perplexity=args.perplexity,
-                      learning_rate=args.learning_rate,
-                      exaggeration=args.exaggeration,
-                      n_iterations=args.n_iterations,
-                      random_state=42)
+    # Check if we should compare implementations
+    if hasattr(args, 'compare_implementations') and args.compare_implementations:
+        comparison_results = compare_tsne_implementations(X, args,
+                                                          perplexity=args.perplexity,
+                                                          learning_rate=args.learning_rate,
+                                                          exaggeration=args.exaggeration,
+                                                          n_iterations=args.n_iterations,
+                                                          random_state=42)
 
-    visualize_tsne(args, X_tsne, y,
-                   perplexity=args.perplexity,
-                   exaggeration=args.exaggeration)
+        # Visualize both embeddings
+        if 'sklearn' in comparison_results and 'local' in comparison_results:
+            print("\nVisualizing sklearn embedding...")
+            visualize_tsne(args, comparison_results['sklearn_embedding'], y,
+                           perplexity=args.perplexity,
+                           exaggeration=args.exaggeration)
 
-    visualize_tsne2(args, X_tsne, y,
-                   perplexity=args.perplexity,
-                   exaggeration=args.exaggeration)
+            print("\nVisualizing local embedding...")
+            visualize_tsne(args, comparison_results['local_embedding'], y,
+                           perplexity=args.perplexity,
+                           exaggeration=args.exaggeration)
+    else:
+        X_tsne = run_tsne(X, args,
+                          perplexity=args.perplexity,
+                          learning_rate=args.learning_rate,
+                          exaggeration=args.exaggeration,
+                          n_iterations=args.n_iterations,
+                          random_state=42)
+
+        visualize_tsne(args, X_tsne, y,
+                       perplexity=args.perplexity,
+                       exaggeration=args.exaggeration)
+
+        visualize_tsne2(args, X_tsne, y,
+                       perplexity=args.perplexity,
+                       exaggeration=args.exaggeration)
 
     if args.compare_perplexity:
         if args.dataset == 'FAKE':

@@ -3,6 +3,7 @@ import numpy as np
 import tools
 import time
 from sklearn.manifold import TSNE
+from evaluation import TSNEEvaluator
 
 def run_tsne(X, args,
              perplexity=30,
@@ -44,6 +45,16 @@ def run_tsne(X, args,
     end_time = time.time()
     print(f"t-SNE completed in {end_time - start_time:.2f} seconds")
 
+    # Evaluate t-SNE quality if requested
+    if hasattr(args, 'evaluate') and args.evaluate:
+        print("\nEvaluating t-SNE quality...")
+        evaluator = TSNEEvaluator(k_neighbors=10, n_samples=min(1000, X.shape[0]))
+        evaluation_results = evaluator.evaluate_tsne(X, X_tsne, verbose=True)
+
+        # Create Shepard diagram if requested
+        if hasattr(args, 'plot_shepard') and args.plot_shepard:
+            evaluator.plot_shepard_diagram(X, X_tsne, save_path=args.output.replace('.png',
+                                                                                    '_shepard.png') if args.output else None)
     return X_tsne
 
 
@@ -125,6 +136,76 @@ def tsne_local(X,
     print()  # New line after progress bar
 
     return Y
+
+def compare_tsne_implementations(X, args, perplexity=30, learning_rate=200, exaggeration=12, n_iterations=1000, random_state=42):
+    """
+    Compare sklearn and local t-SNE implementations with evaluation metrics.
+
+    Args:
+        X: Input data matrix
+        args: Arguments object
+        perplexity: Perplexity value
+        learning_rate: Learning rate for local implementation
+        exaggeration: Exaggeration factor
+        n_iterations: Number of iterations
+        random_state: Random seed
+
+    Returns:
+        dict: Comparison results
+    """
+    print("Comparing sklearn vs local t-SNE implementations...")
+
+    # Run sklearn implementation
+    print("\nRunning sklearn t-SNE...")
+    sklearn_start = time.time()
+    tsne_sklearn = TSNE(
+        n_components=2,
+        perplexity=perplexity,
+        early_exaggeration=exaggeration,
+        learning_rate=learning_rate,
+        random_state=random_state,
+        n_iter=n_iterations
+    )
+    X_sklearn = tsne_sklearn.fit_transform(X)
+    sklearn_time = time.time() - sklearn_start
+    print(f"sklearn t-SNE completed in {sklearn_time:.2f} seconds")
+
+    # Run local implementation
+    print("\nRunning local t-SNE...")
+    local_start = time.time()
+    X_local = tsne_local(X, perplexity=perplexity, learning_rate=learning_rate, n_iter=n_iterations, random_state=random_state)
+    local_time = time.time() - local_start
+    print(f"Local t-SNE completed in {local_time:.2f} seconds")
+
+    # Evaluate both implementations
+    if hasattr(args, 'evaluate') and args.evaluate:
+        print("\nEvaluating both implementations...")
+        evaluator = TSNEEvaluator(k_neighbors=getattr(args, 'k_neighbors', 10), n_samples=min(1000, X.shape[0]))
+        comparison_results = evaluator.compare_implementations(X, X_sklearn, X_local)
+
+        # Add timing information
+        comparison_results['timing'] = {
+            'sklearn_time': sklearn_time,
+            'local_time': local_time,
+            'speedup': local_time / sklearn_time if sklearn_time > 0 else float('inf')
+        }
+
+        print(f"\nTiming Comparison:")
+        print(f"sklearn time: {sklearn_time:.2f} seconds")
+        print(f"local time: {local_time:.2f} seconds")
+        print(f"speedup: {comparison_results['timing']['speedup']:.2f}x")
+
+        return comparison_results
+
+    return {
+        'sklearn_embedding': X_sklearn,
+        'local_embedding': X_local,
+        'timing': {
+            'sklearn_time': sklearn_time,
+            'local_time': local_time,
+            'speedup': local_time / sklearn_time if sklearn_time > 0 else float('inf')
+        }
+    }
 
 class LocalTSNE:
     """

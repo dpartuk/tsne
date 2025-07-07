@@ -45,8 +45,8 @@ def read_args():
         "--dataset",
         type=str,
         default="mnist_784",
-        choices=['CT', 'mnist_784', 'CIFAR_10', 'iris', 'Fashion-MNIST', 'SVHN', 'FAKE', 'GSE45827'],
-        help="Which dataset to use between CT, mnist_784, CIFAR_10, Fashion-MNIST, FAKE, GSE45827, SVHN and iris(default: mnist_784)",
+        choices=['CT', 'mnist_784', 'CIFAR_10', 'iris', 'Fashion-MNIST', 'SVHN', 'FAKE', 'FAKE-Others', 'GSE45827'],
+        help="Which dataset to use between CT, mnist_784, CIFAR_10, Fashion-MNIST, FAKE, 'FAKE-Others', GSE45827, SVHN and iris(default: mnist_784)",
     )
     parser.add_argument("--output", type=str, help="Path to save visualization")
     parser.add_argument(
@@ -57,6 +57,18 @@ def read_args():
     )
     parser.add_argument(
         "--learning-rate", type=float, default=200.0, help="Learning rate for local t-SNE"
+    )
+    parser.add_argument(
+        "--evaluate", action="store_true", help="Evaluate t-SNE quality using multiple metrics"
+    )
+    parser.add_argument(
+        "--plot-shepard", action="store_true", help="Create Shepard diagram for distance correlation analysis"
+    )
+    parser.add_argument(
+        "--k-neighbors", type=int, default=10, help="Number of neighbors for local evaluation metrics"
+    )
+    parser.add_argument(
+        "--compare-implementations", action="store_true", help="Compare sklearn and local t-SNE implementations"
     )
 
     args = parser.parse_args()
